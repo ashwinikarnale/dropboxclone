@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3"
+      xmlns="http://www.w3.org/1999/html">
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <meta charset="UTF-8">
+    <title>Drop Box | Properties</title>
+    <style>
+        #notification{
+        margin-top:15px;
+        }
+        .navigation{
+         margin-top : 20px;
+         padding-left : 16px;
+         }
+         #navbar {
+         height : 60px;
+         border-bottom : 1px solid grey;
+         }
+         #comments{
+         margin-left: -20px;
+         }
+         #display{
+         margin-top : -15px;
+         }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-light bg-light" id="navbar">
+    <a th:href="@{/}" class="navbar-brand text-monospace font-weight-bolder">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Dropbox_logo_2017.svg/2560px-Dropbox_logo_2017.svg.png"
+             alt="DropBox" height="30px" width="145px">
+    </a>
+
+    <span sec:authorize="isAuthenticated()">
+            <a class="text-decoration-none" th:href="@{/logout}">
+                <button class="btn btn-outline-secondary my-2 my-sm-0">Logout</button>
+                </a>
+        </span>
+
+</nav>
+<div id="notification">
+    <h2 align="center">Comments</h2>
+</div>
+<div class="container-fluid" style=" display: inline;">
+    <div class="row">
+        <div class="col-2">
+            <div class="navigation">
+                <a class="text-decoration-none" th:href="@{/}">
+                    <b>Home</b>
+                </a>
+            </div>
+            <div class="navigation">
+                <a class="text-decoration-none" th:href="@{/notification}">
+                    <b>Notifications</b>
+                </a>
+            </div>
+            <div class="navigation">
+                <a class="text-decoration-none" th:href="@{/shared}">
+                    <b>Shared</b>
+                </a>
+            </div>
+            <div class="navigation">
+                <a class="text-decoration-none" th:href="@{/starred}">
+                    <b>Starred</b>
+                </a>
+            </div>
+            <div class="navigation">
+                <a class="text-decoration-none" th:href="@{/bin}">
+                    <b>Deleted Files</b>
+                </a>
+            </div>
+        </div>
+
+
+        <div id="main" class="col-9 col-9 shadow p-3 mb-5 bg-white rounded">
+
+            <div id="container-one">
+                <div class="card-header" id="info">
+                    <b>File Information</b>
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item"><b>File name : </b>
+                        <p th:text="${file.name}"></p></li>
+                    <li class="list-group-item"><b>File Type : </b>
+                        <p th:text="${file.type}"></p></li>
+                    <li class="list-group-item"><b>Uploaded at : </b>
+                        <p th:text="${file.createdAt}"></p></li>
+                </ul>
+            </div>
+            <br>
+
+            <div class="form-floating" id="comment" th:if="${comment} == true">
+                <form th:action="@{/saveComment}" method="post">
+            <textarea class="form-control" placeholder="Leave a comment here" id="floatingTextarea2"
+                      style="height: 100px" type="text" name="comment"></textarea><br>
+                    <label for="floatingTextarea2"><b>Comment : </b></label>
+                    <input type="hidden" name="fileId" th:value="${file.id}">
+                    <button type="submit" class="btn btn-secondary btn-sm">Comment</button>
+                </form>
+            </div>
+            <br>
+            <br>
+
+            <div class="container" id="comments">
+                <div class="comment-box" th:each="comment:${comments}">
+                    <div class="commend-head">
+                        <strong>[[${comment.name}]]</strong> <span class="comment-span">[[${comment.createdAt}]]</span>
+                        <br>
+                        <p>[[${comment.comment}]]</p>
+                    </div>
+                    <div th:if=" ${userEmail} == ${comment.email}" id="display" style="display : flex">
+                        <form class="form-inline" th:action="@{'/comment/edit/'+${comment.id}}" method="get">
+                            <input type="hidden" name="fileId" th:value="${file.id}"/>
+                            <input type="submit" value="Edit" class="btn btn-link text-decoration-none"/>
+                        </form>
+                        <form class="form-inline" th:action="@{'/comment/delete/'+${comment.id}}" method="post">
+                            <input type="hidden" name="fileId" th:value="${file.id}"/>
+                            <input type="submit" value="Delete" class="btn btn-link text-decoration-none"/>
+                        </form>
+                    </div>
+                    <div th:if="${editComment}!=null and ${editComment.id}==${comment.id}">
+                        <form th:action="@{'/comment/update/'+${comment.id}}" method="post">
+                            <input type="hidden" name="fileId" th:value="${file.id}"/> <br/>
+                            <input type="text" name="comment" th:value="${comment.comment}"
+                                   placeholder="add your Comment..."/><br>
+                            <input type="submit" value="Update Comment" class="btn btn-secondary btn-sm"/>
+                        </form>
+                    </div>
+                </div>
+                <br><br>
+            </div>
+            <br>
+        </div>
+    </div>
+</div>
+</body>
+</html>
